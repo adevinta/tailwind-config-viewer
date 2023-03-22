@@ -1,20 +1,15 @@
 <template>
   <div class="space-y-6">
-    <div
-      v-for="([prop, value]) in fontSizes"
-      :key="prop"
-    >
+    <div v-for="[prop, value] in fontSizes" :key="prop">
       <p
         class="mb-2 leading-none text-gray-900 dark:text-gray-500"
-        :style="{
-          fontSize: getFontSizeValue(value)
-        }"
+        :style="getFontSizeValue(value)"
       >
         {{ data.typographyExample }}
       </p>
       <CanvasBlockLabel
         :label="`text-${prop}`"
-        :value="getFontSizeValue(value)"
+        :value="getFontSizeString(value)"
       />
     </div>
   </div>
@@ -55,12 +50,33 @@ export default {
   },
   methods: {
     getFontSizeValue (value) {
+      const isObject = (value) => !!value && value.constructor === Object
+
+      if (isObject(value)) {
+        return {
+          fontSize: value['0'],
+          ...value['1']
+        }
+      }
       // Tailwind 2.0 returns font size as array with size and line height
       if (Array.isArray(value)) {
-        return value[0]
+        return {
+          fontSize: value[0],
+          ...value[1]
+        }
       }
 
-      return value
+      return {
+        fontSize: value
+      }
+    },
+    getFontSizeString (value) {
+      return Object.entries(this.getFontSizeValue(value))
+        .map(
+          ([k = '', val]) =>
+            `${k.replace(/[A-Z]/g, (e) => '-' + e.toLowerCase())}: ${val}`
+        )
+        .join(', ')
     }
   }
 }
