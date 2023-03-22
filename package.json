@@ -1,10 +1,14 @@
 {
-  "name": "tailwind-config-viewer",
-  "version": "2.0.4",
+  "name": "@adevinta/tailwind-config-viewer",
+  "version": "1.7.2",
   "description": "View your Tailwind CSS config file...visually!",
   "author": {
     "name": "Ryan Ogden",
     "email": "ryaneogden@gmail.com"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "serve": "node cli/index.js -c tailwind.config.sample.js & vue-cli-service serve",
@@ -19,9 +23,9 @@
     "tailwind-config-viewer": "./cli/index.js",
     "tailwindcss-config-viewer": "./cli/index.js"
   },
-  "repository": "github:rogden/tailwind-config-viewer",
-  "bugs": {
-    "url": "https://github.com/rogden/tailwind-config-viewer/issues"
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:adevinta/tailwind-config-viewer.git"
   },
   "keywords": [
     "tailwind",
