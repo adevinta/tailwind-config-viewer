@@ -121,7 +121,7 @@ export default {
     const config = await fetch(window.__TCV_CONFIG.configPath)
     this.config = await config.json()
     this.config = defu(this.config, defaultOptions)
-    this.configTransformed = themeComponentMapper(this.config.theme)
+    this.configTransformed = themeComponentMapper(this.config)
     fontTagCreator(this.config.theme)
   }
 }

@@ -1,7 +1,18 @@
 /**
  * Maps Canvas components to theme prop in TW config
  */
-export default function themeComponentMapper (theme) {
+export default function themeComponentMapper (config) {
+  const theme = config.theme
+
+  const miscSectionKeys = theme.configViewer.misc ? Object.keys(theme.configViewer.misc) : []
+
+  const miscSections = theme.configViewer.misc ? Object.keys(theme.configViewer.misc).map(section => ({
+    themeKey: section,
+    component: 'Misc',
+    title: `${section.substring(0, 1).toUpperCase()}${section.substring(1)} (misc)`,
+    data: theme.configViewer.misc[section]
+  })) : []
+
   return [
     {
       themeKey: 'backgroundColor',
@@ -139,6 +150,7 @@ export default function themeComponentMapper (theme) {
       component: 'MaxHeight',
       title: 'Max Height',
       data: theme.maxHeight
-    }
-  ].filter(({ themeKey }) => theme[themeKey])
+    },
+    ...miscSections
+  ].filter(({ themeKey }) => theme[themeKey] || miscSectionKeys.includes(themeKey))
 }
