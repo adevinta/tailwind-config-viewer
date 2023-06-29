@@ -18,6 +18,11 @@
             class="w-full sm:w-auto"
             :selected="selectedProp === '-m'"
             @click="selectedProp = '-m'">Negative Margin</Button>
+          <Button
+            class="w-full sm:w-auto"
+            :selected="selectedProp === 'Position'"
+            @click="selectedProp = 'Position'">Position</Button>
+
         </ButtonGroup>
         <Select
           class="w-full md:w-32 md:ml-2"
@@ -39,7 +44,23 @@
           }"
         />
         <CanvasBlockLabel
-          :label="`${selectedProp}${dimensionProp ? dimensionProp : ''}-${prop}`"
+          :label="(() => {
+            if (selectedProp === 'Position') {
+              const dimensionLookup = {
+                '': 'inset',
+                't': 'top',
+                'r': 'right',
+                'b': 'bottom',
+                'l': 'left',
+                'x': 'inset-x',
+                'y': 'inset-y'
+              }
+
+              return `${dimensionLookup[dimensionProp]}-${prop}`
+            }
+
+            return `${selectedProp}${dimensionProp ? dimensionProp : ''}-${prop}`
+          })()"
           :value="value"
         />
       </div>
