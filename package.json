@@ -1,6 +1,6 @@
 {
   "name": "@adevinta/tailwind-config-viewer",
-  "version": "1.7.4",
+  "version": "1.7.5",
   "description": "View your Tailwind CSS config file...visually!",
   "author": {
     "name": "Ryan Ogden",
