@@ -151,6 +151,12 @@ export default function themeComponentMapper (config) {
       title: 'Max Height',
       data: theme.maxHeight
     },
+    {
+      themeKey: 'zIndex',
+      component: 'ZIndex',
+      title: 'Z-Index',
+      data: theme.zIndex
+    },
     ...miscSections
   ].filter(({ themeKey }) => theme[themeKey] || miscSectionKeys.includes(themeKey))
 }
