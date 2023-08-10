@@ -123,6 +123,19 @@ export default {
     this.config = defu(this.config, defaultOptions)
     this.configTransformed = themeComponentMapper(this.config)
     fontTagCreator(this.config.theme)
+
+    setTimeout(() => {
+      const headings = Array.from(document.querySelectorAll('h1'))
+      const scrollTarget = headings.find(
+        ({ textContent }) =>
+          textContent === decodeURI(window.location.hash).replace('#', ''))
+
+      if (scrollTarget) {
+        scrollTarget.scrollIntoView({
+          behavior: 'smooth'
+        })
+      }
+    }, 500)
   }
 }
 </script>
