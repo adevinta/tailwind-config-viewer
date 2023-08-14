@@ -157,6 +157,18 @@ export default function themeComponentMapper (config) {
       title: 'Z-Index',
       data: theme.zIndex
     },
+    {
+      themeKey: 'keyframes',
+      component: 'Keyframes',
+      title: 'Keyframes',
+      data: theme.keyframes
+    },
+    {
+      themeKey: 'animation',
+      component: 'Animations',
+      title: 'Animations',
+      data: theme.animation
+    },
     ...miscSections
   ].filter(({ themeKey }) => theme[themeKey] || miscSectionKeys.includes(themeKey))
 }
