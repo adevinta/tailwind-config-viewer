@@ -4,7 +4,7 @@
       <div class="md:flex items-center">
         <div class="mb-2 md:mb-0 md:mr-4">
           <CanvasBlockLabel
-            :label="`duration-${selectedDurationKey}`"
+            :label="`spark-anime-duration-${selectedDurationKey}`"
           />
           <Select
             class="w-full mt-2 md:w-32"
@@ -15,7 +15,7 @@
         <div>
           <div class="flex items-center">
             <CanvasBlockLabel
-              :label="`delay-${selectedDelayKey}`"
+              :label="`spark-anime-delay-${selectedDelayKey}`"
             />
           </div>
           <Select
@@ -59,7 +59,7 @@
 
             <div class="sm:flex mb-2 sm:mb-0 sm:divide-x">
               <CanvasBlockLabel
-                :label="removeDefaultSuffix(`ease-${key}`)"
+                :label="removeDefaultSuffix(`spark-anime-easing-${key}`)"
                 :value="value"
               />
             </div>

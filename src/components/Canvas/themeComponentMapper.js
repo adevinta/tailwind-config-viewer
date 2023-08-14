@@ -169,6 +169,16 @@ export default function themeComponentMapper (config) {
       title: 'Animations',
       data: theme.animation
     },
+    {
+      themeKey: 'transitionTimingFunction',
+      component: 'AnimationSettings',
+      title: 'Animations settings',
+      data: {
+        timing: theme.transitionTimingFunction,
+        duration: theme.transitionDuration,
+        delay: theme.transitionDelay
+      }
+    },
     ...miscSections
   ].filter(({ themeKey }) => theme[themeKey] || miscSectionKeys.includes(themeKey))
 }
