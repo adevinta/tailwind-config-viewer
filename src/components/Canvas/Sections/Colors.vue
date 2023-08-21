@@ -25,34 +25,41 @@
         </Button>
       </ButtonGroup>
     </StickySectionHeader>
-    <div class="flex flex-wrap -mb-4 mt-6">
+    <div class="flex flex-wrap -mb-4 mt-6 gap-y-20">
       <div
-        v-for="(value, prop) in selectedColorItems"
-        :key="prop"
-        class="w-full md:w-36 mb-4 md:mr-4"
+        v-for="(obj, title) in selectedColorItems"
+        :key="title"
+        class="w-full flex flex-wrap gap-4"
       >
+        <h2 class="w-full text-xl font-bold text-slate-900 capitalize">{{ title }}:</h2>
         <div
-          class="mb-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
-          :class="{'border border-gray-300': selectedProp === 'textColor'}"
-          :style="tileStyle(value)"
+          v-for="(value, index) in obj"
+          :key="index"
+          class="w-full md:w-36"
         >
-          <span
-            class="text-3xl"
-            :style="{
-              color: value
-            }"
-            v-if="selectedProp === 'textColor'">Aa</span>
+          <div
+            class="mb-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
+            :class="{'border border-gray-300': selectedProp === 'textColor'}"
+            :style="tileStyle(value[1])">
+            <span
+              class="text-3xl"
+              :style="{
+                color: value[1]
+              }"
+              v-if="selectedProp === 'textColor'">Aa</span>
+          </div>
+          <CanvasBlockLabel
+            :label="`${selectedPropClassPrefix}-${value[0]}`"
+            :value="value[1]"
+          />
         </div>
-        <CanvasBlockLabel
-          :label="`${selectedPropClassPrefix}-${prop}`"
-          :value="value"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { categories, sortColorEntries } from '@/utils/colors'
 import CanvasBlockLabel from '../CanvasBlockLabel'
 import ButtonGroup from '../../ButtonGroup'
 import Button from '../../Button'
@@ -81,7 +88,13 @@ export default {
 
   computed: {
     selectedColorItems () {
-      return this.data[this.selectedProp]
+      const obj = {
+        backgroundColor: this.groupAndReorderColors(this.data.backgroundColor),
+        textColor: this.groupAndReorderColors(this.data.textColor),
+        borderColor: this.groupAndReorderColors(this.data.borderColor)
+      }
+
+      return obj[this.selectedProp]
     },
 
     selectedPropClassPrefix () {
@@ -96,6 +109,50 @@ export default {
   },
 
   methods: {
+    groupAndReorderColors (obj) {
+      const entries = Object.entries(obj)
+
+      function groupAndSort (groupName) {
+        return sortColorEntries(entries.filter(([key]) => key.includes(groupName)))
+      }
+
+      const mainKeys = groupAndSort(categories.main)
+      const supportKeys = groupAndSort(categories.support)
+      const accentKeys = groupAndSort(categories.accent)
+      const basicKeys = groupAndSort(categories.basic)
+      const neutralKeys = groupAndSort(categories.neutral)
+      const surfaceKeys = groupAndSort(categories.surface)
+      const backgroundKeys = groupAndSort(categories.background)
+      const outlineKeys = groupAndSort(categories.outline)
+      const overlayKeys = groupAndSort(categories.overlay)
+      const infoKeys = groupAndSort(categories.info)
+      const successKeys = groupAndSort(categories.success)
+      const alertKeys = groupAndSort(categories.alert)
+      const errorKeys = groupAndSort(categories.error)
+
+      const otherEntries = sortColorEntries(entries
+        .filter(([key]) => !Object.keys(categories)
+          .some(cat => new RegExp(cat).test(key))))
+
+      const reorderedObject = {
+        main: mainKeys,
+        support: supportKeys,
+        accent: accentKeys,
+        basic: basicKeys,
+        neutral: neutralKeys,
+        surface: surfaceKeys,
+        background: backgroundKeys,
+        outline: outlineKeys,
+        overlay: overlayKeys,
+        info: infoKeys,
+        success: successKeys,
+        alert: alertKeys,
+        error: errorKeys,
+        other: otherEntries
+      }
+
+      return reorderedObject
+    },
     tileStyle (value) {
       if (this.selectedProp === 'backgroundColor') {
         return {
