@@ -2,7 +2,7 @@
 <template>
   <div>
     <div
-      v-for="(value, prop) in cssDeclarations"
+      v-for="(value, prop) in customFilter(cssDeclarations)"
       :key="prop"
       class="mb-6"
     >
@@ -35,6 +35,16 @@ export default {
   methods: {
     getAnimationValue (value) {
       return `animation: ${JSON.stringify(value, null, 2)};`.replace(/"/g, '')
+    },
+    customFilter (obj) {
+      const filteredObj = Object.keys(obj).reduce((acc, cur) => {
+        if (/^standalone/i.test(cur)) return acc
+        acc[cur] = obj[cur]
+
+        return acc
+      }, {})
+
+      return filteredObj
     }
   },
 
