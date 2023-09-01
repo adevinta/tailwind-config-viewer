@@ -29,29 +29,38 @@
       <div
         v-for="(obj, title) in selectedColorItems"
         :key="title"
-        class="w-full flex flex-wrap gap-4"
+        class="w-full"
       >
-        <h2 class="w-full text-xl font-bold text-slate-900 capitalize">{{ title }}:</h2>
+        <h2 class="w-full mb-4 text-2xl font-bold text-slate-900 capitalize">{{ title }}:</h2>
         <div
-          v-for="(value, index) in obj"
-          :key="index"
-          class="w-full md:w-36"
+          class="w-full flex flex-wrap gap-4 mt-3"
+          v-for="(entry, category) in obj"
+          :key="category"
         >
+          <h3 v-if="category !== 'elemental'" class="w-full text-base font-semibold text-slate-700 lowercase -mb-2">
+            {{ title }} {{ category }}s
+          </h3>
           <div
-            class="mb-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
-            :class="{'border border-gray-300': selectedProp === 'textColor'}"
-            :style="tileStyle(value[1])">
-            <span
-              class="text-3xl"
-              :style="{
-                color: value[1]
-              }"
-              v-if="selectedProp === 'textColor'">Aa</span>
+            v-for="(value, index) in entry"
+            :key="index"
+            class="w-full md:w-36"
+          >
+            <div
+              class="mb-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
+              :class="{'border border-gray-300': selectedProp === 'textColor'}"
+              :style="tileStyle(value[1])">
+              <span
+                class="text-3xl"
+                :style="{
+                  color: value[1]
+                }"
+                v-if="selectedProp === 'textColor'">Aa</span>
+            </div>
+            <CanvasBlockLabel
+              :label="`${selectedPropClassPrefix}-${value[0]}`"
+              :value="value[1]"
+            />
           </div>
-          <CanvasBlockLabel
-            :label="`${selectedPropClassPrefix}-${value[0]}`"
-            :value="value[1]"
-          />
         </div>
       </div>
     </div>
@@ -59,7 +68,7 @@
 </template>
 
 <script>
-import { categories, sortColorEntries } from '@/utils/colors'
+import { categories, sortColorEntries, groupColorsBySubCategory } from '@/utils/colors'
 import CanvasBlockLabel from '../CanvasBlockLabel'
 import ButtonGroup from '../../ButtonGroup'
 import Button from '../../Button'
@@ -112,46 +121,21 @@ export default {
     groupAndReorderColors (obj) {
       const entries = Object.entries(obj)
 
-      function groupAndSort (groupName) {
-        return sortColorEntries(entries.filter(([key]) => key.includes(groupName)))
+      function groupAndReorder (groupName) {
+        return groupColorsBySubCategory(sortColorEntries(entries.filter(([key]) => key.includes(groupName))))
       }
 
-      const mainKeys = groupAndSort(categories.main)
-      const supportKeys = groupAndSort(categories.support)
-      const accentKeys = groupAndSort(categories.accent)
-      const basicKeys = groupAndSort(categories.basic)
-      const neutralKeys = groupAndSort(categories.neutral)
-      const surfaceKeys = groupAndSort(categories.surface)
-      const backgroundKeys = groupAndSort(categories.background)
-      const outlineKeys = groupAndSort(categories.outline)
-      const overlayKeys = groupAndSort(categories.overlay)
-      const infoKeys = groupAndSort(categories.info)
-      const successKeys = groupAndSort(categories.success)
-      const alertKeys = groupAndSort(categories.alert)
-      const errorKeys = groupAndSort(categories.error)
+      const reorderedObject = Object.keys(categories).reduce((acc, category) => {
+        acc[category] = groupAndReorder(category)
 
-      const otherEntries = sortColorEntries(entries
+        return acc
+      }, {})
+
+      const otherEntries = groupColorsBySubCategory(sortColorEntries(entries
         .filter(([key]) => !Object.keys(categories)
-          .some(cat => new RegExp(cat).test(key))))
+          .some(cat => new RegExp(cat).test(key)))))
 
-      const reorderedObject = {
-        main: mainKeys,
-        support: supportKeys,
-        accent: accentKeys,
-        basic: basicKeys,
-        neutral: neutralKeys,
-        surface: surfaceKeys,
-        background: backgroundKeys,
-        outline: outlineKeys,
-        overlay: overlayKeys,
-        info: infoKeys,
-        success: successKeys,
-        alert: alertKeys,
-        error: errorKeys,
-        other: otherEntries
-      }
-
-      return reorderedObject
+      return { ...reorderedObject, other: otherEntries }
     },
     tileStyle (value) {
       if (this.selectedProp === 'backgroundColor') {

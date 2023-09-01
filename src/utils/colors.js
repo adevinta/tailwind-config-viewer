@@ -35,6 +35,37 @@ export function sortColorEntries (entries) {
   })
 }
 
+export function groupColorsBySubCategory (entries) {
+  const categorizedColors = {
+    elemental: {},
+    variant: {},
+    container: {}
+  }
+
+  entries.forEach(entry => {
+    const [label] = entry
+
+    if (label.split('-').includes('variant')) {
+      categorizedColors.variant[label] = entry
+
+      return
+    }
+
+    if (label.split('-').includes('container')) {
+      categorizedColors.container[label] = entry
+
+      return
+    }
+
+    categorizedColors.elemental[label] = entry
+  })
+
+  if (!Object.keys(categorizedColors.variant).length) delete categorizedColors.variant
+  if (!Object.keys(categorizedColors.container).length) delete categorizedColors.container
+
+  return categorizedColors
+}
+
 export const categories = {
   main: 'main',
   support: 'support',
