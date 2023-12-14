@@ -98,9 +98,9 @@ export default {
   computed: {
     selectedColorItems () {
       const obj = {
-        backgroundColor: this.groupAndReorderColors(this.data.backgroundColor),
-        textColor: this.groupAndReorderColors(this.data.textColor),
-        borderColor: this.groupAndReorderColors(this.data.borderColor)
+        backgroundColor: this.groupAndReorderColors(this.data, 'backgroundColor'),
+        textColor: this.groupAndReorderColors(this.data, 'textColor'),
+        borderColor: this.groupAndReorderColors(this.data, 'borderColor')
       }
 
       return obj[this.selectedProp]
@@ -118,8 +118,11 @@ export default {
   },
 
   methods: {
-    groupAndReorderColors (obj) {
-      const entries = Object.entries(obj)
+    groupAndReorderColors (obj, field) {
+      const entries = Object.entries(obj[field]).filter(([key]) => {
+        if (field !== 'backgroundColor') return true
+        return !/^on-/.test(key)
+      })
 
       function groupAndReorder (groupName) {
         return groupColorsBySubCategory(sortColorEntries(entries.filter(([key]) => key.includes(groupName))))
