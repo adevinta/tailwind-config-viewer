@@ -70,14 +70,14 @@ export const categories = {
   main: 'main',
   support: 'support',
   accent: 'accent',
+  info: 'info',
+  success: 'success',
+  alert: 'alert',
+  error: 'error',
   basic: 'basic',
   neutral: 'neutral',
   surface: 'surface',
   background: 'background',
   outline: 'outline',
-  overlay: 'overlay',
-  info: 'info',
-  success: 'success',
-  alert: 'alert',
-  error: 'error'
+  overlay: 'overlay'
 }
