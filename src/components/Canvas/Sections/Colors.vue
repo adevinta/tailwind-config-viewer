@@ -27,10 +27,18 @@
         </ButtonGroup>
 
         <ButtonGroup>
-          <Button :variant="'disclosure'" class="w-full sm:w-32" @click="handleDisclosures('collapse')">
+          <Button
+            :variant="'disclosure'"
+            class="w-full sm:w-32"
+            @click="handleDisclosures('collapse')"
+          >
             Collapse all
           </Button>
-          <Button :variant="'disclosure'" class="w-full sm:w-32" @click="handleDisclosures('expand')">
+          <Button
+            :variant="'disclosure'"
+            class="w-full sm:w-32"
+            @click="handleDisclosures('expand')"
+          >
             Expand all
           </Button>
         </ButtonGroup>
@@ -38,21 +46,37 @@
     </StickySectionHeader>
     <div class="flex flex-wrap -mb-4 mt-6 gap-y-10">
       <div
-        v-for="(obj, title) in selectedColorItems"
+        v-for="(obj, title, index) in selectedColorItems"
         :key="title"
         class="w-full"
       >
         <details ref="detailsRef">
-          <summary class="cursor-pointer dark:text-gray-500">
-            <h2
-              style="vertical-align: sub"
-              class="inline mb-4 text-2xl font-bold text-slate-900 dark:text-gray-500 capitalize"
+          <summary
+            @click="toggleDetail(index)"
+            class="cursor-pointer dark:text-gray-500"
+          >
+            <div
+              style="top: 2px"
+              class="inline-flex mb-4 items-center relative"
             >
-              {{ title }}:
-              <span class="font-light text-sm">{{
-                getCategoryColorStats(obj)
-              }}</span>
-            </h2>
+              <h2
+                class="inline mr-2 text-2xl font-bold text-slate-900 dark:text-gray-500 capitalize"
+              >
+                {{ title }}:
+                <span class="font-light text-sm">{{
+                  getCategoryColorStats(obj)
+                }}</span>
+              </h2>
+              <div
+                :style="{
+                  backgroundColor: isOpenedDetail(index)
+                    ? 'transparent'
+                    : getAverageColor(obj),
+                  borderColor: getAverageColor(obj),
+                }"
+                class="w-8 h-8 border-solid border-2"
+              />
+            </div>
           </summary>
           <div
             class="w-full flex flex-wrap gap-4 mt-3"
@@ -102,6 +126,7 @@
 import {
   categories,
   sortColorEntries,
+  getAverageColor,
   groupColorsBySubCategory
 } from '@/utils/colors'
 import CanvasBlockLabel from '../CanvasBlockLabel'
@@ -119,7 +144,10 @@ export default {
   mounted () {
     const detailsRef = this.$refs.detailsRef
 
-    detailsRef.forEach((detailsElm) => detailsElm.setAttribute('open', ''))
+    detailsRef.forEach((detailsElm, index) => {
+      this.openedDetails.push(index)
+      detailsElm.setAttribute('open', '')
+    })
   },
 
   props: {
@@ -131,7 +159,8 @@ export default {
 
   data () {
     return {
-      selectedProp: 'backgroundColor'
+      selectedProp: 'backgroundColor',
+      openedDetails: []
     }
   },
 
@@ -161,6 +190,19 @@ export default {
   },
 
   methods: {
+    isOpenedDetail (index) {
+      return this.openedDetails.includes(index)
+    },
+    toggleDetail (index) {
+      const isOpenedDetail = this.isOpenedDetail(index)
+      if (isOpenedDetail) {
+        this.openedDetails = this.openedDetails.filter((i) => i !== index)
+      } else {
+        this.openedDetails = Array.from(
+          new Set([...this.openedDetails, index])
+        )
+      }
+    },
     getCategoryColorStats (obj) {
       const coreCount = Object.keys(obj['elemental'] || {}).length
       const variantCount = Object.keys(obj['variant'] || {}).length
@@ -178,12 +220,16 @@ export default {
       const detailsRef = this.$refs.detailsRef
 
       action === 'expand'
-        ? detailsRef.forEach((detailsElm) =>
+        ? detailsRef.forEach((detailsElm, index) => {
+          this.openedDetails = Array.from(
+            new Set([...this.openedDetails, index])
+          )
           detailsElm.setAttribute('open', '')
-        )
-        : detailsRef.forEach((detailsElm) =>
+        })
+        : detailsRef.forEach((detailsElm, index) => {
+          this.openedDetails = []
           detailsElm.removeAttribute('open')
-        )
+        })
     },
     groupAndReorderColors (obj, field) {
       const entries = Object.entries(obj[field]).filter(([key]) => {
@@ -216,6 +262,15 @@ export default {
       )
 
       return { ...reorderedObject, other: otherEntries }
+    },
+    getAverageColor (colorsObj) {
+      const hexCodes = Object.keys(colorsObj)
+        .flatMap((key) =>
+          Object.keys(colorsObj[key]).map((k) => colorsObj[key][k].at(-1))
+        )
+        .filter((hexCode) => /^#/.test(hexCode))
+
+      return getAverageColor(hexCodes)
     },
     tileStyle (value) {
       if (this.selectedProp === 'backgroundColor') {

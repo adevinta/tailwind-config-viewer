@@ -1,3 +1,10 @@
+import chrome from 'chroma-js'
+
+export function getAverageColor (colors) {
+  if (!colors.length) return 'transparent'
+  return chrome.average(colors).css()
+}
+
 export function sortColorEntries (entries) {
   const order = [
     /^([^-]+)$/, // value
