@@ -95,12 +95,24 @@
               class="w-full md:w-36"
             >
               <div
-                class="mb-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
+                class="mb-2 p-2 flex-none w-full md:w-36 h-16 md:h-36 flex items-center justify-center"
                 :class="{
                   'border border-gray-300': selectedProp === 'textColor',
                 }"
                 :style="tileStyle(value[1])"
               >
+                <span
+                  :style="{
+                    color: getMatchingTextColorDetails(value, title, category).value,
+                  }"
+                  v-if="selectedProp === 'backgroundColor' && getMatchingTextColorDetails(value, title, category)"
+                  >
+                    <CopyValue
+                      :label="`${getMatchingTextColorDetails(value, title, category).label}`"
+                      :value="`${getMatchingTextColorDetails(value, title, category).label}`"
+                    />
+                  </span
+                >
                 <span
                   class="text-3xl"
                   :style="{
@@ -130,6 +142,7 @@ import {
   groupColorsBySubCategory
 } from '@/utils/colors'
 import CanvasBlockLabel from '../CanvasBlockLabel'
+import CopyValue from '../CopyValue.vue'
 import ButtonGroup from '../../ButtonGroup'
 import Button from '../../Button'
 import StickySectionHeader from '../../StickySectionHeader'
@@ -137,6 +150,7 @@ import StickySectionHeader from '../../StickySectionHeader'
 export default {
   components: {
     CanvasBlockLabel,
+    CopyValue,
     ButtonGroup,
     Button,
     StickySectionHeader
@@ -233,8 +247,8 @@ export default {
     },
     groupAndReorderColors (obj, field) {
       const entries = Object.entries(obj[field]).filter(([key]) => {
-        if (field !== 'backgroundColor') return true
-        return !/^on-/.test(key)
+        if (field === 'backgroundColor') return !/^on-/.test(key) // filter out 'bg-on-*' tokens
+        return !/ed$/.test(key) // filter out tokens that end up with hovered | pressed | focused
       })
 
       function groupAndReorder (groupName) {
@@ -262,6 +276,29 @@ export default {
       )
 
       return { ...reorderedObject, other: otherEntries }
+    },
+    getMatchingTextColorDetails (value, title, category) {
+      const textColorObj = this.groupAndReorderColors(this.data, 'textColor')
+      if (/ed$/.test(value[0])) return // tokens that end up with hovered | pressed | focused
+      if (!textColorObj[title]) return
+
+      const tuple = textColorObj[title][category][`on-${title}-${category}`]
+      const coreTuple = textColorObj[title][category][`on-${title}`]
+
+      if (!tuple && !coreTuple) return
+
+      if (tuple) {
+        return { label: `text-on-${title}-${category}`, value: tuple[1] }
+      }
+
+      if (coreTuple) {
+        return value[0].includes('inverse')
+          ? {
+            label: `text-on-${title}-inverse`,
+            value: textColorObj[title][category][`on-${title}-inverse`][1]
+          }
+          : { label: `text-on-${title}`, value: coreTuple[1] }
+      }
     },
     getAverageColor (colorsObj) {
       const hexCodes = Object.keys(colorsObj)
