@@ -17,6 +17,12 @@
             label="Dark Mode"
           />
           <div class="ml-3 text-sm text-gray-700 dark:text-gray-500">Tailwind v{{ config.tailwindVersion }}</div>
+          <p class="ml-3 mt-3 text-lg font-semibold text-pink-400 dark:text-purple-400">Active theme:</p>
+          <Select
+            class="w-10/12 ml-3 mt-1 mb-4"
+            :options="themeOptions"
+            v-model="activeTheme"
+          />
           <nav class="pt-3 pr-20 pb-12 px-3 h-full">
             <a
               v-for="section in configTransformed"
@@ -68,13 +74,15 @@ import themeComponentMapper from './themeComponentMapper'
 import fontTagCreator from './fontTagCreator'
 import CanvasSection from './CanvasSection'
 import ToggleSwitch from '../ToggleSwitch'
+import Select from '../Select'
 import defaultOptions from '../../defaultOptions'
 
 export default {
   components: {
     CanvasSection,
     ToggleSwitch,
-    Intersect
+    Intersect,
+    Select
   },
 
   provide () {
@@ -94,8 +102,10 @@ export default {
   data () {
     return {
       activeSection: null,
+      activeTheme: '',
       config: null,
-      configTransformed: null
+      configTransformed: null,
+      themeOptions: []
     }
   },
 
@@ -114,6 +124,19 @@ export default {
 
     setActiveSection (section) {
       this.activeSection = section
+    },
+    async themeChanged () {
+      if (!this.activeTheme) return
+
+      this.configTransformed = themeComponentMapper(this.config.themes[this.activeTheme])
+      fontTagCreator(this.config.themes[this.activeTheme].theme)
+    }
+  },
+
+  watch: {
+    activeTheme: {
+      handler: 'themeChanged',
+      immediate: true
     }
   },
 
@@ -121,8 +144,20 @@ export default {
     const config = await fetch(window.__TCV_CONFIG.configPath)
     this.config = await config.json()
     this.config = defu(this.config, defaultOptions)
-    this.configTransformed = themeComponentMapper(this.config)
-    fontTagCreator(this.config.theme)
+
+    const themeOptions = Object.keys(this.config.themes).reduce((acc, themeKey) => {
+      acc[themeKey] = themeKey
+
+      return acc
+    }, {})
+
+    const initialActiveTheme = themeOptions[Object.keys(themeOptions)[0]]
+
+    this.configTransformed = themeComponentMapper(this.config.themes[initialActiveTheme])
+    fontTagCreator(this.config.themes[initialActiveTheme].theme)
+
+    this.themeOptions = themeOptions
+    this.activeTheme = initialActiveTheme
 
     setTimeout(() => {
       const headings = Array.from(document.querySelectorAll('h1'))
